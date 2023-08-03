@@ -1,0 +1,5 @@
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\obj\Debug\net6.0\Billing Engine.csproj.AssemblyReference.cache
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\obj\Debug\net6.0\Billing Engine.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\obj\Debug\net6.0\Billing Engine.AssemblyInfoInputs.cache
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\obj\Debug\net6.0\Billing Engine.AssemblyInfo.cs
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\obj\Debug\net6.0\Billing Engine.csproj.CoreCompileInputs.cache

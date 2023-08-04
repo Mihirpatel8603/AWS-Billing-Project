@@ -13,13 +13,13 @@ namespace BillingEngine
 
 
             var monthlyBills = billingService.GenerateMonthlyBills(
-                "/path/to/customer.csv",
-                "/path/to/resource-type.csv",
-                "/path/to/resource-usage.csv",
+                "D:/intenship/Case1/Input/Customer.csv",
+                "D:/intenship/Case1/Input/AWSResourceType.csv",
+                "D:/intenship/Case1/Input/AWSCustomerUsage.csv",
                 "/path/to/region.csv"
             );
 
-            monthlyBills.ForEach(monthlyBill => billPrinter.PrintBill(monthlyBill, "path/to/output/dir"));
+            monthlyBills.ForEach(monthlyBill => billPrinter.PrintBill(monthlyBill, "C:/Users/91820/Desktop/result"));
         }
     }
 }

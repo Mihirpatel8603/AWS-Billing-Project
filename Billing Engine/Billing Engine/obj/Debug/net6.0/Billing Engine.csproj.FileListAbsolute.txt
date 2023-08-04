@@ -3,3 +3,15 @@ C:\Users\91820\source\repos\Billing Engine\Billing Engine\obj\Debug\net6.0\Billi
 C:\Users\91820\source\repos\Billing Engine\Billing Engine\obj\Debug\net6.0\Billing Engine.AssemblyInfoInputs.cache
 C:\Users\91820\source\repos\Billing Engine\Billing Engine\obj\Debug\net6.0\Billing Engine.AssemblyInfo.cs
 C:\Users\91820\source\repos\Billing Engine\Billing Engine\obj\Debug\net6.0\Billing Engine.csproj.CoreCompileInputs.cache
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\bin\Debug\net6.0\Billing Engine.exe
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\bin\Debug\net6.0\Billing Engine.deps.json
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\bin\Debug\net6.0\Billing Engine.runtimeconfig.json
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\bin\Debug\net6.0\Billing Engine.dll
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\bin\Debug\net6.0\Billing Engine.pdb
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\bin\Debug\net6.0\CsvHelper.dll
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\obj\Debug\net6.0\Billing Engine.csproj.CopyComplete
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\obj\Debug\net6.0\Billing Engine.dll
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\obj\Debug\net6.0\refint\Billing Engine.dll
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\obj\Debug\net6.0\Billing Engine.pdb
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\obj\Debug\net6.0\Billing Engine.genruntimeconfig.cache
+C:\Users\91820\source\repos\Billing Engine\Billing Engine\obj\Debug\net6.0\ref\Billing Engine.dll

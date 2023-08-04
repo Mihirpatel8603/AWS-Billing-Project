@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Globalization;
 using System.IO;
-using csvhelper;
+using CsvHelper;
 using BillingEngine.Parsers.Models;
 
 namespace BillingEngine.Parsers
@@ -12,7 +12,7 @@ namespace BillingEngine.Parsers
 
         public List<ParsedEc2ResourceUsageEventRecord> Parse(string filePath)
         {
-            using StreamReader streamReader = File.OpenText("D:/intenship/Case1/Input/AWSResourceType.cs");
+            using StreamReader streamReader = File.OpenText(filePath);
             using var csvReader = new CsvReader(streamReader, CultureInfo.CurrentCulture);
 
             

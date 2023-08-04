@@ -14,8 +14,22 @@ namespace BillingEngine.Models.Billing
         public double TotalAmount { get; }
         public double TotalDiscount { get; }
 
+        public AggregatedMonthlyEc2Usage()
+        {
+           
+            TotalDiscount = 0;
+            TotalAmount = 0;
+            TotalResources = 0;
+            TotalBilledTime = TimeSpan.Zero;
+            TotalUsedTime = TimeSpan.Zero;
+            TotalDiscountedTime = TimeSpan.Zero;
+            
+            
+        }
+
         public double GetActualAmountToBePaid()
         {
+
             return TotalAmount - TotalDiscount;
         }
         

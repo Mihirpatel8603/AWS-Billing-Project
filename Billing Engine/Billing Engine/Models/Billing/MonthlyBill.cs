@@ -34,21 +34,12 @@ namespace BillingEngine.Models.Billing
 
             List< AggregatedMonthlyEc2Usage > AggregatedMonthlyEc2Usage = new List<AggregatedMonthlyEc2Usage> ();
 
-            foreach(var items in MonthlyEc2InstanceUsages)
-            {
-                bool flag = false;
-                foreach(var monthlyusages in AggregatedMonthlyEc2Usage )
-                {
-                    if( monthlyusages.ResourceType.Equals(items.Ec2InstanceType.InstanceType))
-                    {
-                        TimeSpan Ts = TimeSpan.Zero;
-
-                       
-                    }
-                }
-            }
-            return new List<AggregatedMonthlyEc2Usage>();
+            
+            return null;
         }
+
+
+
 
         public void ApplyDiscount(string ec2InstanceId, int discountedHours)
         {

@@ -12,7 +12,7 @@ namespace BillingEngine.Parsers
         public List<ParsedEc2InstanceType> Parse(string filePath)
         {
 
-            using StreamReader streamReader = File.OpenText("D:/intenship/Case1/Input/AWSResourceType.cs");
+            using StreamReader streamReader = File.OpenText(filePath);
             using var csvReader = new CsvReader(streamReader, CultureInfo.CurrentCulture);
             return new List<ParsedEc2InstanceType>();
         }

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\91820\\source\\repos\\Billing Engine\\Billing Engine\\Billing Engine.csproj": {}
+    "C:\\Users\\91820\\Desktop\\AWS-Billing-Project\\Billing Engine\\Billing Engine\\Billing Engine.csproj": {}
   },
   "projects": {
-    "C:\\Users\\91820\\source\\repos\\Billing Engine\\Billing Engine\\Billing Engine.csproj": {
+    "C:\\Users\\91820\\Desktop\\AWS-Billing-Project\\Billing Engine\\Billing Engine\\Billing Engine.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\91820\\source\\repos\\Billing Engine\\Billing Engine\\Billing Engine.csproj",
+        "projectUniqueName": "C:\\Users\\91820\\Desktop\\AWS-Billing-Project\\Billing Engine\\Billing Engine\\Billing Engine.csproj",
         "projectName": "Billing Engine",
-        "projectPath": "C:\\Users\\91820\\source\\repos\\Billing Engine\\Billing Engine\\Billing Engine.csproj",
+        "projectPath": "C:\\Users\\91820\\Desktop\\AWS-Billing-Project\\Billing Engine\\Billing Engine\\Billing Engine.csproj",
         "packagesPath": "C:\\Users\\91820\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\91820\\source\\repos\\Billing Engine\\Billing Engine\\obj\\",
+        "outputPath": "C:\\Users\\91820\\Desktop\\AWS-Billing-Project\\Billing Engine\\Billing Engine\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\91820\\AppData\\Roaming\\NuGet\\NuGet.Config",

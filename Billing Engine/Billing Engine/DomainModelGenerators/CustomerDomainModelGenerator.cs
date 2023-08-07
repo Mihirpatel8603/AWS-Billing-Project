@@ -1,35 +1,38 @@
-using System.Collections.Generic;
-using System.Linq;
 using BillingEngine.Models;
 using BillingEngine.Models.Ec2;
 using BillingEngine.Parsers;
 using BillingEngine.Parsers.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BillingEngine.DomainModelGenerators
 {
     public class CustomerDomainModelGenerator
     {
         private readonly Ec2InstanceTypeDomainModelGenerator _ec2InstanceTypeDomainModelGenerator;
+        private readonly Ec2RegionDomainModelGenerator _ec2RegionDomainModelGenerator;
         private readonly Ec2InstanceDomainModelGenerator _ec2InstanceDomainModelGenerator;
 
         public CustomerDomainModelGenerator()
         {
             _ec2InstanceDomainModelGenerator = new Ec2InstanceDomainModelGenerator();
             _ec2InstanceTypeDomainModelGenerator = new Ec2InstanceTypeDomainModelGenerator();
+            _ec2RegionDomainModelGenerator = new Ec2RegionDomainModelGenerator();
         }
 
         public List<Customer> GenerateCustomerModels(
             List<ParsedCustomerRecord> parsedCustomerRecords,
             List<ParsedEc2InstanceType> parsedEc2InstanceTypes,
             List<ParsedEc2Region> parsedEc2Regions,
-            List<ParsedEc2ResourceUsageEventRecord> parsedEc2ResourceUsageEventRecords)  
+            List<ParsedEc2ResourceUsageEventRecord> parsedEc2ResourceUsageEventRecords)
         {
+            //converts ParsedEc2InstanceType -> Ec2InstanceType
             List<Ec2InstanceType> ec2InstanceTypes = _ec2InstanceTypeDomainModelGenerator
                 .GenerateEc2InstanceTypes(parsedEc2InstanceTypes);
 
-            //Generate Ec2Region instances by defining Ec2RegionDomainModelGenerator     
-            List<Ec2Region> ec2Regions = new List<Ec2Region>();
-            
+            //Generate Ec2Region instances by defining Ec2RegionDomainModelGenerator
+            //converts ParsedEc2Region -> Ec2Region
+            List<Ec2Region> ec2Regions = _ec2RegionDomainModelGenerator.GenerateEc2RegionTypes(parsedEc2Regions);
 
             return parsedCustomerRecords.Select(parsedCustomerRecord =>
                     GenerateCustomerModel(
@@ -40,7 +43,7 @@ namespace BillingEngine.DomainModelGenerators
                 )
                 .ToList();
         }
-        
+
         private Customer GenerateCustomerModel(
             ParsedCustomerRecord parsedCustomerRecord,
             List<ParsedEc2ResourceUsageEventRecord> ec2ResourceUsageEventsForCustomer,
@@ -48,48 +51,16 @@ namespace BillingEngine.DomainModelGenerators
             List<Ec2Region> ec2Regions)
         {
             // Build customer object as well as associated composite objects, e.g. Ec2Instance, 
-            List<Ec2Instance> ec2instaces = new List<Ec2Instance>();
+            //throw new System.NotImplementedException();
+            //generate ec2Instances model for a customer
+            List<Ec2Instance> ec2Instances = _ec2InstanceDomainModelGenerator.GenerateEc2InstanceModels(
+                ec2ResourceUsageEventsForCustomer, ec2InstanceTypes);
 
-            for (int i = 0; i < ec2ResourceUsageEventsForCustomer.Count; i++)
-            {
-                if (ec2ResourceUsageEventsForCustomer[i].CustomerId == parsedCustomerRecord.CustomerId)
-                {
-                    bool find = false;
-                    for (int j = 0; j < ec2instaces.Count; j++)
-                    {
-                        if (ec2instaces[j].InstanceId == ec2ResourceUsageEventsForCustomer[i].Ec2InstanceId)
-                        {
-                            ec2instaces[j].Usages.Add(new ResourceUsageEvent(ec2ResourceUsageEventsForCustomer[i].UsedFrom, ec2ResourceUsageEventsForCustomer[i].UsedUntil));
-                            find = true;
-                            break;
-                        }
-                    }
-                    if (!find)
-                    {
-                        Ec2InstanceType ec2insttype = new Ec2InstanceType();
-
-                        for (int j = 0; j < ec2InstanceTypes.Count; j++)
-                        {
-                            if (ec2InstanceTypes[j].InstanceType == ec2ResourceUsageEventsForCustomer[i].Ec2InstanceType)
-                            {
-                                ec2insttype = ec2InstanceTypes[j];
-                            }
-                        }
-
-                        List<ResourceUsageEvent> usage = new List<ResourceUsageEvent>();
-                        usage.Add(new ResourceUsageEvent(ec2ResourceUsageEventsForCustomer[i].UsedFrom, ec2ResourceUsageEventsForCustomer[i].UsedUntil));
-
-                        Ec2Instance ec2inst = new Ec2Instance(ec2ResourceUsageEventsForCustomer[i].Ec2InstanceId, ec2insttype, usage);
-
-                        ec2instaces.Add(ec2inst);
-                    }
-                }
-            }
-
-
-            Customer cs = new Customer(parsedCustomerRecord.CustomerId, parsedCustomerRecord.CustomerName, ec2instaces);
-           
-            return cs;
+            Customer newCustomer = new Customer(
+                parsedCustomerRecord.CustomerId,
+                parsedCustomerRecord.CustomerName,
+                ec2Instances);
+            return newCustomer;
         }
     }
 }

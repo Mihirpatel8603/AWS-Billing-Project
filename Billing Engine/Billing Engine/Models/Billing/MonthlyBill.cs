@@ -1,8 +1,8 @@
+using BillingEngine.DomainModelGenerators;
+using BillingEngine.Models.Ec2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BillingEngine.Billing;
-using BillingEngine.Models.Ec2;
 
 namespace BillingEngine.Models.Billing
 {
@@ -12,7 +12,7 @@ namespace BillingEngine.Models.Billing
         public string CustomerName { get; }
 
         public MonthYear MonthYear { get; }
-        
+
         public List<MonthlyEc2InstanceUsage> MonthlyEc2InstanceUsages { get; }
 
         public MonthlyBill(string customerId, string customerName, MonthYear monthYear)
@@ -32,14 +32,33 @@ namespace BillingEngine.Models.Billing
         {
             //Using MonthlyEc2InstanceUsages, compute List<AggregatedMonthlyEc2Usage>
 
-            List< AggregatedMonthlyEc2Usage > AggregatedMonthlyEc2Usage = new List<AggregatedMonthlyEc2Usage> ();
-
-            
-            return null;
+            List<AggregatedMonthlyEc2Usage> aggregatedMonthlyEc2Usages = new List<AggregatedMonthlyEc2Usage>();
+            foreach (var monthlyEc2InstanceUsage in MonthlyEc2InstanceUsages)
+            {
+                var getAggreg = aggregatedMonthlyEc2Usages.FindAggregatedMonthlyEc2Usage(monthlyEc2InstanceUsage.Ec2InstanceType);
+                if (getAggreg == null)
+                {
+                    AggregatedMonthlyEc2Usage newAggregateUsage = new AggregatedMonthlyEc2Usage();
+                    newAggregateUsage.ResourceType = monthlyEc2InstanceUsage.Ec2InstanceType.InstanceType;
+                    newAggregateUsage.TotalResources = 1;
+                    newAggregateUsage.RegionName = monthlyEc2InstanceUsage.Ec2InstanceType.Region.Name;
+                    newAggregateUsage.CostPerHour = monthlyEc2InstanceUsage.Ec2InstanceType.CostPerHourOnDemand;
+                    newAggregateUsage.TotalUsedTime = monthlyEc2InstanceUsage.GetTotalUsageTime();
+                    if (newAggregateUsage.TotalUsedTime.TotalSeconds == 0) continue;
+                    newAggregateUsage.TotalBilledTime = new TimeSpan(monthlyEc2InstanceUsage.GetTotalBillableHours(), 0, 0);
+                    newAggregateUsage.TotalAmount = newAggregateUsage.CostPerHour * newAggregateUsage.TotalBilledTime.TotalHours;
+                    aggregatedMonthlyEc2Usages.Add(newAggregateUsage);
+                }
+                else
+                {
+                    getAggreg.TotalResources += 1;
+                    getAggreg.TotalBilledTime += new TimeSpan(monthlyEc2InstanceUsage.GetTotalBillableHours(), 0, 0);
+                    getAggreg.TotalUsedTime += monthlyEc2InstanceUsage.GetTotalUsageTime();
+                    getAggreg.TotalAmount = getAggreg.TotalBilledTime.TotalHours * getAggreg.CostPerHour;
+                }
+            }
+            return aggregatedMonthlyEc2Usages;
         }
-
-
-
 
         public void ApplyDiscount(string ec2InstanceId, int discountedHours)
         {
@@ -47,28 +66,33 @@ namespace BillingEngine.Models.Billing
             // and then call monthlyEc2InstanceUsage.ApplyDiscount(discountedHours)
         }
 
-        public double GetTotalAmount()
+        public double GetTotalAmount(List<AggregatedMonthlyEc2Usage> usages)
         {
-            throw new System.NotImplementedException();
+            double totalAmount = 0;
+            foreach (var usage in usages)
+            {
+                totalAmount += usage.TotalAmount;
+            }
+            return Math.Round(totalAmount, 4);
         }
 
         public double GetTotalDiscount()
         {
-            throw new System.NotImplementedException();
+            //throw new System.NotImplementedException();
+            return 0;
         }
 
-        public double GetAmountToBePaid()
-        {
-            return GetTotalAmount() - GetTotalDiscount();
-        }
+        //public double GetAmountToBePaid()
+        //{
+        //    return GetTotalAmount() - GetTotalDiscount();
+        //}
 
-    /*  public List<MonthlyEc2InstanceUsage> GetFreeTierEligibleInstanceUsagesOfType(OperatingSystem operatingSystem)
-        {
-            return MonthlyEc2InstanceUsages
-                .Where(instanceUsage => instanceUsage.Ec2InstanceType.IsFreeTierEligible)
-                .Where(instanceUsage => instanceUsage.Ec2InstanceType.OperatingSystem == operatingSystem)
-                
-                .ToList();
-        }*/
+        //public List<MonthlyEc2InstanceUsage> GetFreeTierEligibleInstanceUsagesOfType(OperatingSystem operatingSystem)
+        //{
+        //    return MonthlyEc2InstanceUsages
+        //        .Where(instanceUsage => instanceUsage.Ec2InstanceType.IsFreeTierEligible)
+        //        .Where(instanceUsage => instanceUsage.Ec2InstanceType.OperatingSystem == operatingSystem)
+        //        .ToList();
+        //}
     }
 }

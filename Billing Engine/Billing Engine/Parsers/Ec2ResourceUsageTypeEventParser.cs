@@ -1,9 +1,9 @@
+using BillingEngine.Parsers.Models;
+using CsvHelper;
 using System.Collections.Generic;
-using System.Formats.Asn1;
 using System.Globalization;
 using System.IO;
-using CsvHelper;
-using BillingEngine.Parsers.Models;
+using System.Linq;
 
 namespace BillingEngine.Parsers
 {
@@ -12,11 +12,9 @@ namespace BillingEngine.Parsers
 
         public List<ParsedEc2ResourceUsageEventRecord> Parse(string filePath)
         {
-            using StreamReader streamReader = File.OpenText(filePath);
-            using var csvReader = new CsvReader(streamReader, CultureInfo.CurrentCulture);
-
-            
-            return new List<ParsedEc2ResourceUsageEventRecord>();
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, CultureInfo.CurrentCulture))
+                return csv.GetRecords<ParsedEc2ResourceUsageEventRecord>().ToList();
         }
     }
 }

@@ -1,28 +1,22 @@
-using System.Collections.Generic;
 using BillingEngine.Models.Ec2;
 using BillingEngine.Parsers.Models;
+using System.Collections.Generic;
 
 namespace BillingEngine.DomainModelGenerators
 {
     public class Ec2InstanceTypeDomainModelGenerator
     {
-            
+
         public List<Ec2InstanceType> GenerateEc2InstanceTypes(List<ParsedEc2InstanceType> parsedEc2InstanceTypes)
         {
             // Convert each object of type ParsedEc2InstanceType to Ec2InstanceType
-            List<Ec2InstanceType> ec2InstanceTypes = new List<Ec2InstanceType>();
-
-            for (int i = 0; i < parsedEc2InstanceTypes.Count; i++)
+            List<Ec2InstanceType> convertedEc2InstanceTypes = new List<Ec2InstanceType>();
+            foreach (var data in parsedEc2InstanceTypes)
             {
-                double cost = double.Parse(parsedEc2InstanceTypes[i].CostPerHour[1..]);
-
-                Ec2InstanceType ec2InstanceType = new Ec2InstanceType(parsedEc2InstanceTypes[i].Ec2InstanceType, cost);
-
-                ec2InstanceTypes.Add(ec2InstanceType);
-
+                Ec2InstanceType newEc2InstanceType = new Ec2InstanceType(data.Ec2InstanceType, double.Parse(data.CostPerHourOnDemand[1..]), data.RegionName);
+                convertedEc2InstanceTypes.Add(newEc2InstanceType);
             }
-            return ec2InstanceTypes;
-           
-        } 
+            return convertedEc2InstanceTypes;
+        }
     }
-} 
+}

@@ -1,19 +1,24 @@
 using CsvHelper.Configuration.Attributes;
 using System;
+using System.Globalization;
 
 namespace BillingEngine.Parsers.Models
 {
     public class ParsedEc2ResourceUsageEventRecord
     {
-        [Name("CustomerId")]
+        [Name("Customer ID")]
         public string CustomerId { get; set; }
-        [Name("Ec2InstanceId")]
+        [Name("EC2 Instance ID")]
         public string Ec2InstanceId { get; set; }
-        [Name("Ec2InstanceType")]
+        [Name("EC2 Instance Type")]
         public string Ec2InstanceType { get; set; }
-        [Name("UsedFrom")]
+        [Name("Used From")]
         public DateTime UsedFrom { get; set; }
-        [Name("UsedUntil")]
+        [Name("Used Until")]
         public DateTime UsedUntil { get; set; }
+        [Name("Region")]
+        public string RegionName { get; set; }
+        [Name("OS")]
+        public string OSType { get; set; }
     }
 }

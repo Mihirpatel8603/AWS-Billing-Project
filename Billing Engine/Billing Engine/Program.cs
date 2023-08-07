@@ -1,6 +1,7 @@
 ﻿using BillingEngine.Billing;
-using BillingEngine.Models;
+using BillingEngine.Models.Billing;
 using BillingEngine.Printers;
+using System;
 
 namespace BillingEngine
 {
@@ -11,15 +12,14 @@ namespace BillingEngine
             BillingService billingService = new BillingService();
             BillPrinter billPrinter = new BillPrinter();
 
-
             var monthlyBills = billingService.GenerateMonthlyBills(
-                "D:/intenship/Case1/Input/Customer.csv",
-                "D:/intenship/Case1/Input/AWSResourceType.csv",
-                "D:/intenship/Case1/Input/AWSCustomerUsage.csv",
-                "/path/to/region.csv"
+                "C:/Users/91820/source/repos//Test cases/input/Customer.csv",
+                "C:/Users/91820/source/repos//Test cases/input/AWSResourceTypes.csv",
+                "C:/Users/91820/source/repos//Test cases/input/AWSOnDemandResourceUsage.csv",
+                "C:/Users/91820/source/repos//Test cases/input/Region.csv"
             );
-
-            monthlyBills.ForEach(monthlyBill => billPrinter.PrintBill(monthlyBill, "C:/Users/91820/Desktop/result"));
+            //Console.WriteLine(monthlyBills.Count);
+            monthlyBills.ForEach(monthlyBill => billPrinter.PrintBill(monthlyBill, "C:/Users/91820/Desktop/AWS-Billing-Project/Result/"));
         }
     }
 }

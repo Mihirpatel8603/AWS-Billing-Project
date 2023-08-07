@@ -6,7 +6,7 @@ namespace BillingEngine.Parsers.Models
     {
         [Name("Region")]
         public string RegionName { get; set; }
-        [Name("Freee Tier Eligible")]
+        [Name("Free Tier Eligible")]
         public string FreeTierEligibleInstanceType { get; set; }
     }
 }

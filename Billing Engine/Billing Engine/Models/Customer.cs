@@ -1,9 +1,8 @@
-using BillingEngine.DomainModelGenerators;
-using BillingEngine.Models.Billing;
-using BillingEngine.Models.Ec2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BillingEngine.Models.Billing;
+using BillingEngine.Models.Ec2;
 
 namespace BillingEngine.Models
 {
@@ -28,47 +27,52 @@ namespace BillingEngine.Models
 
         public List<MonthYear> GetDistinctMonthYears()
         {
-            //return all possible month year combination for a customer
-            List<MonthYear> monthYears = new List<MonthYear>();
-            foreach (var ec2Instance in Ec2Instances)
-            {
-                foreach (var usage in ec2Instance.Usages)
-                {
+            HashSet<int> months = new HashSet<int>();
 
-                    if (usage.UsedFrom == usage.UsedUntil) continue; //if start time and end time is same
-                    int startMonth = usage.UsedFrom.Month;
-                    int startYear = usage.UsedFrom.Year;
-                    int endMonth = usage.UsedUntil.Month;
-                    int endYear = usage.UsedUntil.Year;
-                    for (int year = startYear; year <= endYear; year++)
+            foreach (var instance in Ec2Instances)
+            {
+                foreach (var use in instance.Usages)
+                {
+                    int starting = (use.UsedFrom.Year) * 100 + use.UsedFrom.Month;
+                    int ending = (use.UsedUntil.Year) * 100 + use.UsedUntil.Month;
+
+                    for (int i = starting; i <= ending; i++)
                     {
-                        int monthStart = (year == startYear) ? startMonth : 1;
-                        int monthEnd = (year == endYear) ? endMonth : 12;
-                        for (int month = monthStart; month <= monthEnd; month++)
+                        if ((i % 100) == 13)
                         {
-                            var currMonthYear = new MonthYear(month, year);
-                            var monthYear = monthYears.FindMonthYear(month, year);
-                            if (monthYear == null)
-                            {
-                                monthYears.Add(currMonthYear);
-                            }
+                            i -= 12;
+                            i += 100;
                         }
+                        months.Add(i);
                     }
                 }
             }
-            return monthYears;
+
+            List<MonthYear> distintMonths = new List<MonthYear>();
+            foreach (var mon in months)
+            {
+                MonthYear month = new MonthYear(mon % 100, mon / 100);
+                distintMonths.Add(month);
+            }
+            return distintMonths;
         }
 
-        public List<MonthlyEc2InstanceUsage> GetMonthlyEc2InstanceUsagesForMonth(MonthYear monthYear)
+        public List<MonthlyEc2InstanceUsage> GetMonthlyEc2InstanceUsagesForMonth(MonthYear monthYear)  //done
         {
-            // Using List<Ec2Instance> , construct  List<MonthlyEc2InstanceUsage> by calling ec2Instance.GetUsageInMonth(monthYear)
-            List<MonthlyEc2InstanceUsage> monthlyEc2InstanceUsages = new List<MonthlyEc2InstanceUsage>();
-            foreach (var ec2Instance in Ec2Instances)
+
+            List<MonthlyEc2InstanceUsage> monthlyec2instnceusage = new List<MonthlyEc2InstanceUsage>();
+
+            DateTime start = GetJoiningDate();
+            int ending = start.Year * 100 + start.Month + 100;
+            int current = monthYear.Year * 100 + monthYear.Month;
+
+            bool isfree = current < ending;
+            foreach (var ec2instance in Ec2Instances)
             {
-                monthlyEc2InstanceUsages.Add(ec2Instance.GetMonthlyEc2InstanceUsageForMonth(monthYear));
+                monthlyec2instnceusage.Add(ec2instance.GetMonthlyEc2InstanceUsageForMonth(monthYear, isfree));
             }
 
-            return monthlyEc2InstanceUsages;
+            return monthlyec2instnceusage;
         }
 
         public DateTime GetJoiningDate()

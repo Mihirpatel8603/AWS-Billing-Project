@@ -1,9 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
 using BillingEngine.DomainModelGenerators;
 using BillingEngine.Models.Billing;
 using BillingEngine.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace BillingEngine.Billing
 {
@@ -11,6 +10,7 @@ namespace BillingEngine.Billing
     {
         private readonly CustomerCsvParser _customerCsvParser;
         private readonly Ec2ResourceUsageTypeEventParser _resourceUsageTypeEventParser;
+        private readonly Ec2ResourceUsageReservedParser _resourceUsageReserved;
         private readonly Ec2InstanceTypeCsvParser _instanceTypeCsvParser;
         private readonly Ec2RegionCsvParser _regionCsvParser;
         private readonly CustomerDomainModelGenerator _customerDomainModelGenerator;
@@ -21,6 +21,7 @@ namespace BillingEngine.Billing
         {
             _customerCsvParser = new CustomerCsvParser();
             _resourceUsageTypeEventParser = new Ec2ResourceUsageTypeEventParser();
+            _resourceUsageReserved = new Ec2ResourceUsageReservedParser();
             _instanceTypeCsvParser = new Ec2InstanceTypeCsvParser();
             _regionCsvParser = new Ec2RegionCsvParser();
 
@@ -30,28 +31,37 @@ namespace BillingEngine.Billing
         }
 
         public List<MonthlyBill> GenerateMonthlyBills(
-            string customerCsvPath,
-            string resourceTypeCsvPath,
-            string resourceUsageOnDemandCsvPath,
-            string regionCsvPath)
+           string customerCsvPath,
+           string resourceTypeCsvPath,
+           string resourceReservedUsage,
+           string resourceUsageCsvPath,
+           string regionCsvPath)
         {
-            //parse each input file and store its data
-            var parsedCustomerRecords = _customerCsvParser.Parse(customerCsvPath);
+            var parsedCustomerRecords =
+                _customerCsvParser.Parse(customerCsvPath);
 
-            var parsedEc2ResourceUsageEventRecords = _resourceUsageTypeEventParser.Parse(resourceUsageOnDemandCsvPath);
+            var parsedEc2ResourceUsageEventRecords =
+                _resourceUsageTypeEventParser.Parse(resourceUsageCsvPath);
 
             var parsedEc2InstanceTypes = _instanceTypeCsvParser.Parse(resourceTypeCsvPath);
 
             var parsedEc2Regions = _regionCsvParser.Parse(regionCsvPath);
 
-            //generates customer object
+            var parsedEc2ResourceUsageReserveds = _resourceUsageReserved.Parse(resourceReservedUsage);
+
+            foreach (var item in parsedEc2ResourceUsageReserveds)
+            {
+                item.UsedUntil = item.UsedUntil.AddDays(1);
+
+            }
+
             var customers = _customerDomainModelGenerator.GenerateCustomerModels(
                 parsedCustomerRecords,
                 parsedEc2InstanceTypes,
                 parsedEc2Regions,
+                parsedEc2ResourceUsageReserveds,
                 parsedEc2ResourceUsageEventRecords);
 
-            //generate monthly bills and returns list of monthly bills
             return customers
                 .SelectMany(_customerLevelMonthlyBillingService.GenerateMonthlyBillsForCustomer)
                 .ToList();

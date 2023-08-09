@@ -7,6 +7,7 @@ namespace BillingEngine.Models
         public int Month { get; }
         public int Year { get; }
 
+        public MonthYear() { }
         public MonthYear(int month, int year)
         {
             this.Month = month;

@@ -1,7 +1,6 @@
-using BillingEngine.Models.Ec2;
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using BillingEngine.Models.Ec2;
 
 namespace BillingEngine.Models.Billing
 {
@@ -15,10 +14,21 @@ namespace BillingEngine.Models.Billing
 
         public int DiscountedHours { get; private set; }
 
-        public MonthlyEc2InstanceUsage(string ec2InstanceId, Ec2InstanceType ec2InstanceType)
+        public MonthlyEc2InstanceUsage()
         {
-            Ec2InstanceId = ec2InstanceId;
-            Ec2InstanceType = ec2InstanceType;
+            Usages = new List<ResourceUsageEvent>();
+        }
+
+        public MonthlyEc2InstanceUsage(string instanceId, Ec2InstanceType instanceType, List<ResourceUsageEvent> usages)
+        {
+            this.Ec2InstanceId = instanceId;
+            this.Ec2InstanceType = instanceType;
+            this.Usages = usages;
+        }
+        public MonthlyEc2InstanceUsage(string instanceId, Ec2InstanceType instanceType)
+        {
+            this.Ec2InstanceId = instanceId;
+            this.Ec2InstanceType = instanceType;
             Usages = new List<ResourceUsageEvent>();
         }
 
@@ -35,15 +45,6 @@ namespace BillingEngine.Models.Billing
         public int GetTotalBillableHours()
         {
             return Usages.Select(usage => usage.GetBillableHours()).Sum();
-        }
-        public TimeSpan GetTotalUsageTime()
-        {
-            TimeSpan totalTime = new TimeSpan();
-            foreach (var usage in Usages)
-            {
-                totalTime += usage.GetTotalTime();
-            }
-            return totalTime;
         }
     }
 }

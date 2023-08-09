@@ -1,19 +1,22 @@
-using BillingEngine.Parsers.Models;
-using CsvHelper;
 using System.Collections.Generic;
 using System.Globalization;
+using CsvHelper;
 using System.IO;
+using BillingEngine.Parsers.Models;
 using System.Linq;
 
 namespace BillingEngine.Parsers
 {
     public class Ec2RegionCsvParser
     {
-        public List<ParsedEc2Region> Parse(string filePath)
+
+
+        public List<ParsedEc2Region> Parse(string regionPath)
         {
-            using (var reader = new StreamReader(filePath))
-            using (var csv = new CsvReader(reader, CultureInfo.CurrentCulture))
-                return csv.GetRecords<ParsedEc2Region>().ToList();
+            using StreamReader streamReader = File.OpenText(regionPath);
+            using var csvReader = new CsvReader(streamReader, CultureInfo.CurrentCulture);
+
+            return csvReader.GetRecords<ParsedEc2Region>().ToList();
         }
     }
 }

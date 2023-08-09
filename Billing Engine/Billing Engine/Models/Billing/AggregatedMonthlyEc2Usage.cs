@@ -1,13 +1,16 @@
+using BillingEngine.Models.Ec2;
 using System;
+using System.Collections.Generic;
 
 namespace BillingEngine.Models.Billing
 {
     public class AggregatedMonthlyEc2Usage
     {
-        public string RegionName { get; set; }
         public string ResourceType { get; set; }
         public int TotalResources { get; set; }
-        public double CostPerHour { get; set; }
+
+        public Ec2Region region { get; set; }
+        public HashSet<string> ids { get; set; }
         public TimeSpan TotalBilledTime { get; set; }
         public TimeSpan TotalUsedTime { get; set; }
         public TimeSpan TotalDiscountedTime { get; set; }
@@ -17,12 +20,16 @@ namespace BillingEngine.Models.Billing
 
         public AggregatedMonthlyEc2Usage()
         {
-            TotalAmount = 0;
-            TotalDiscount = 0;
-            TotalResources = 0;
-            TotalBilledTime = TimeSpan.Zero;
-            TotalUsedTime = TimeSpan.Zero;
-            TotalDiscountedTime = TimeSpan.Zero;
+            ids = new HashSet<string>();
+        }
+
+        public void addid(string id)
+        {
+            this.ids.Add(id);
+        }
+        public int countinstance()
+        {
+            return ids.Count;
         }
 
         public double GetActualAmountToBePaid()

@@ -1,8 +1,7 @@
-using BillingEngine.Helper;
 using BillingEngine.Models.Billing;
 using System;
-using System.IO;
 using System.Text;
+
 
 namespace BillingEngine.Printers
 {
@@ -11,41 +10,124 @@ namespace BillingEngine.Printers
         public string PrintBill(MonthlyBill monthlyBill, string pathToOutputDir)
         {
 
-            //This method will just print the bill by generating CSV and returns file path of that csv.
-            // Print header information like customer name, month, year and then print
-            // monthlyBill.GetTotalAmount();
-            // monthlyBill.GetTotalDiscount();
-            // monthlyBill.GetAmountToBePaid();
-            var aggregUsage = monthlyBill.GetAggregatedMonthlyEc2Usages();
-            double TotalBillAmount = monthlyBill.GetTotalAmount(aggregUsage);
-            if (TotalBillAmount == 0) return null;
-            string fileName = monthlyBill.CustomerId + "_" + HelperMethods.GetMonthInitial(monthlyBill.MonthYear.Month) + "-" + monthlyBill.MonthYear.Year;
-
-            var csv = new StringBuilder();
-            string csvPath = pathToOutputDir + fileName + ".csv";
-            csv.AppendLine(monthlyBill.CustomerName);
-            csv.AppendLine(string.Format("Bill for month of {0} {1}", HelperMethods.GetMonthName(monthlyBill.MonthYear.Month), monthlyBill.MonthYear.Year));
-            csv.AppendLine(string.Format("Total Amount: ${0}", TotalBillAmount));
-            csv.AppendLine(string.Format("Total Discount: ${0}", monthlyBill.GetTotalDiscount()));
-            csv.AppendLine(string.Format("Actual Amount: ${0}", TotalBillAmount - monthlyBill.GetTotalDiscount()));
-            csv.AppendLine("Region,Resource Type,Total Resources,Total Used Time (HH:mm:ss),Total Billed Time (HH:mm:ss),Total Amount,Discount,Actual Amount");
-
-            //Now print itemized bill
-            foreach (var usage in aggregUsage)
+            if (monthlyBill.GetTotalAmount() != 0)
             {
-                csv.AppendLine(string.Format("{0},{1},{2},{3},{4},${5},${6},${7}",
-                    usage.RegionName,
-                    usage.ResourceType,
-                    usage.TotalResources,
-                    HelperMethods.ConvertToHour(usage.TotalUsedTime),
-                    HelperMethods.ConvertToHour(usage.TotalBilledTime),
-                    Math.Round(usage.TotalAmount, 4),
-                    Math.Round(usage.TotalDiscount, 4),
-                    Math.Round(usage.GetActualAmountToBePaid(), 4)));
+
+                string name = monthlyBill.CustomerId.Substring(0, 4) + "-" + monthlyBill.CustomerId.Substring(4) + "_";
+                DateTime date = new DateTime(monthlyBill.MonthYear.Year, monthlyBill.MonthYear.Month, 1);
+
+                name += (date.ToString("MMM")).ToUpper();
+                name += "-" + monthlyBill.MonthYear.Year.ToString();
+
+                String file = @"" + pathToOutputDir + name + ".csv";
+
+                String separator = ",";
+                StringBuilder output = new StringBuilder();
+
+                string newLine = "";
+
+                newLine = string.Format("{0}", monthlyBill.CustomerName);
+                output.AppendLine(string.Join(separator, newLine));
+
+                string monthname = "Bill for Month of " + date.ToString("MMMM") + " " + monthlyBill.MonthYear.Year.ToString();
+
+                newLine = string.Format("{0}", monthname);
+                output.AppendLine(string.Join(separator, newLine));
+
+                string amount = Math.Round(monthlyBill.GetTotalAmount(), 4).ToString();
+                newLine = string.Format("{0}", "Total amount : $" + amount);
+                output.AppendLine(string.Join(separator, newLine));
+
+                string discount = Math.Round(monthlyBill.GetTotalDiscount(), 4).ToString();
+                newLine = string.Format("{0}", "Discount : $" + discount);
+                output.AppendLine(string.Join(separator, newLine));
+
+
+                string actual_amount = Math.Round(monthlyBill.GetAmountToBePaid(), 4).ToString();
+                newLine = string.Format("{0}", "Actual amount : $" + actual_amount);
+                output.AppendLine(string.Join(separator, newLine));
+
+
+                string heading = "Region,Resource Type,Total Resources,Total Used Time (HH:mm:ss),Total Billed Time (HH:mm:ss),Total Amount,Discount,Actual cmount";
+
+                newLine = string.Format("{0}", heading);
+                output.AppendLine(string.Join(separator, newLine));
+
+
+                List<AggregatedMonthlyEc2Usage> lists = monthlyBill.GetAggregatedMonthlyEc2Usages();
+                foreach (var aggrigatemonthbill in lists)
+                {
+                    if (aggrigatemonthbill.TotalAmount != 0)
+                    {
+                        //Console.WriteLine(PrintBillItem(aggrigatemonthbill));
+
+                        newLine = string.Format("{0}", PrintBillItem(aggrigatemonthbill));
+                        output.AppendLine(string.Join(separator, newLine));
+
+
+                    }
+                }
+
+
+                try
+                {
+                    File.AppendAllText(file, output.ToString());
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+
+
+                }
+                return pathToOutputDir + name + ".csv";
+
+
+
             }
-            File.WriteAllText(csvPath, csv.ToString());
-            //Return path of generated CSV
-            return csvPath;
+
+            return "";
+        }
+
+        public string timespan(TimeSpan ts)
+        {
+
+            int sec = ts.Seconds;
+            int min = ts.Minutes;
+            int hr = ts.Days * 24 + ts.Hours;
+
+
+            return hr.ToString() + ":" + min.ToString() + ":" + sec.ToString();
+        }
+
+        private string PrintBillItem(AggregatedMonthlyEc2Usage aggregatedMonthlyEc2Usage)
+        {
+
+            string data = "";
+            data += aggregatedMonthlyEc2Usage.region.Name + ",";
+
+            data += aggregatedMonthlyEc2Usage.ResourceType + ",";
+
+            data += aggregatedMonthlyEc2Usage.countinstance().ToString() + ",";
+
+
+            data += timespan(aggregatedMonthlyEc2Usage.TotalUsedTime) + ",";
+
+            data += timespan(aggregatedMonthlyEc2Usage.TotalBilledTime) + ",$";
+
+            double amount = Math.Round(aggregatedMonthlyEc2Usage.TotalAmount, 4);
+
+            data += amount.ToString() + ",";
+
+            double discont = Math.Round(aggregatedMonthlyEc2Usage.TotalDiscount, 4);
+
+            data += "$" + discont.ToString() + ",$";
+
+            data += Math.Round(amount - discont, 4).ToString();
+
+
+            return data;
+
         }
     }
 }

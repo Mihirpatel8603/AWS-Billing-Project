@@ -1,7 +1,7 @@
-using BillingEngine.Models.Billing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BillingEngine.Models.Billing;
 
 namespace BillingEngine.Models.Ec2
 {
@@ -11,81 +11,85 @@ namespace BillingEngine.Models.Ec2
 
         public Ec2InstanceType InstanceType { get; }
 
-        public List<ResourceUsageEvent> Usages { get; set; }
+        public List<ResourceUsageEvent> Usages { get; }
 
-        public Ec2Instance(string instanceId, Ec2InstanceType instanceType)
+        public Ec2Instance(string instanceId, Ec2InstanceType instanceType, List<ResourceUsageEvent> usages)
         {
             InstanceId = instanceId;
             InstanceType = instanceType;
-            Usages = new List<ResourceUsageEvent>();
+            Usages = usages;
         }
 
-        public MonthlyEc2InstanceUsage GetMonthlyEc2InstanceUsageForMonth(MonthYear monthYear)
+        public MonthlyEc2InstanceUsage GetMonthlyEc2InstanceUsageForMonth(MonthYear monthYear, bool isfree)  //done
         {
-            // Creates an instance of MonthlyEc2InstanceUsage by capturing usage events, applicable for a given month and year
-            // For example, if Usages contain
-            // 2021-05-10 to 2021-05-12 and
-            // 2021-05-15 to 2021-05-17 and
-            // 2021-05-25 to 2021-06-04 and
-            // 2021-06-15 to 2021-06-17
+            Ec2InstanceType ec2instancetype = new Ec2InstanceType(InstanceType, isfree);
 
-            // Then newly constructed MonthlyEc2InstanceUsage for month 05/2021 (passed as argument) would include
-            // 2021-05-10 to 2021-05-12 and
-            // 2021-05-15 to 2021-05-17 and
-            // 2021-05-25 to 2021-05-31
-            MonthlyEc2InstanceUsage monthlyEc2InstanceUsage = new MonthlyEc2InstanceUsage(InstanceId, InstanceType);
-            foreach (var usage in Usages)
+
+            MonthlyEc2InstanceUsage monthlyec2instanceusage = new MonthlyEc2InstanceUsage(InstanceId, ec2instancetype);
+
+            for (int i = 0; i < Usages.Count; i++)
             {
-                int currStart = usage.UsedFrom.Year * 100 + usage.UsedFrom.Month;
-                int currEnd = usage.UsedUntil.Year * 100 + usage.UsedUntil.Month;
-                int givenData = monthYear.Year * 100 + monthYear.Month;
+                DateTime from = Usages[i].UsedFrom;
+                DateTime until = Usages[i].UsedUntil;
 
-                //case 1: e.g 10-5-2021 to 20-5-2021 for 5-2021
-                if (givenData == currStart && givenData == currEnd)
-                {
-                    ResourceUsageEvent newUsage = new ResourceUsageEvent(usage.UsedFrom, usage.UsedUntil);
-                    monthlyEc2InstanceUsage.AddEc2UsageEvent(newUsage);
-                }
-                //case 2: e.g 10-5-2021 to 10-6-2021 for 5-2021 -> 10-5-21 to month end
-                else if (givenData == currStart && givenData < currEnd)
-                {
-                    int currMonth = usage.UsedFrom.Month + 1;
-                    int currYear = usage.UsedFrom.Year;
-                    if (currMonth == 13)
-                    {
-                        currMonth = 1;
-                        currYear++;
-                    }
-                    DateTime newUsedFrom = usage.UsedFrom;
-                    DateTime newUsedUntil = new DateTime(currYear, currMonth, 1, 0, 0, 0);
-                    ResourceUsageEvent newUsage = new ResourceUsageEvent(newUsedFrom, newUsedUntil);
-                    monthlyEc2InstanceUsage.AddEc2UsageEvent(newUsage);
-                }
-                //case 3: 10-4-21 to 10-5-21 for 5-21 -> month start to 10-5-21
-                else if (givenData > currStart && givenData == currEnd)
-                {
-                    DateTime usedUntil = usage.UsedUntil;
-                    ResourceUsageEvent newUsage = new ResourceUsageEvent(new DateTime(usedUntil.Year, usedUntil.Month, 1, 0, 0, 0), usedUntil);
-                    monthlyEc2InstanceUsage.AddEc2UsageEvent(newUsage);
-                }
-                //case 4 : 10-4-21 to 10-6-21 for 5-21 -> month start to month end
-                else if (givenData > currStart && givenData < currEnd)
-                {
-                    int currMonth = monthYear.Month, currYear = monthYear.Year;
 
-                    int endMonth = currMonth + 1, endYear = currYear;
-                    if (endMonth == 13)
-                    {
-                        endMonth = 1;
-                        endYear++;
-                    }
-                    ResourceUsageEvent newUsage = new ResourceUsageEvent(
-                        new DateTime(currYear, currMonth, 1, 0, 0, 0),
-                        new DateTime(endYear, endMonth, 1, 0, 0, 0));
-                    monthlyEc2InstanceUsage.AddEc2UsageEvent(newUsage);
+                int startmonth = (from.Year * 100) + from.Month;
+                int endmonth = (until.Year * 100) + until.Month;
+                int currentMonth = (monthYear.Year * 100) + monthYear.Month;
+
+                if (currentMonth == endmonth && currentMonth == startmonth)
+                {
+                    ResourceUsageEvent resousageevnt = new ResourceUsageEvent(from, until);
+                    monthlyec2instanceusage.AddEc2UsageEvent(resousageevnt);
                 }
+                else if (currentMonth < endmonth && currentMonth > startmonth)
+                {
+                    DateTime datefrom = new DateTime(monthYear.Year, monthYear.Month, 1, 0, 0, 0);
+
+                    int newyear = monthYear.Year;
+                    int newmonth = monthYear.Month + 1;
+
+                    if (newmonth == 13)
+                    {
+                        newmonth = 1;
+                        newyear++;
+                    }
+
+                    DateTime dateuntil = new DateTime(newyear, newmonth, 1, 0, 0, 0);
+
+                    ResourceUsageEvent resousageevnt = new ResourceUsageEvent(datefrom, dateuntil);
+                    monthlyec2instanceusage.AddEc2UsageEvent(resousageevnt);
+
+                }
+                else if (currentMonth == startmonth && endmonth > currentMonth)
+                {
+                    int newyear = monthYear.Year;
+                    int newmonth = monthYear.Month + 1;
+
+                    if (newmonth == 13)
+                    {
+                        newmonth = 1;
+                        newyear++;
+                    }
+
+                    DateTime dateuntil = new DateTime(newyear, newmonth, 1, 0, 0, 0);
+
+                    ResourceUsageEvent resousageevnt = new ResourceUsageEvent(from, dateuntil);
+                    monthlyec2instanceusage.AddEc2UsageEvent(resousageevnt);
+                }
+                else if (currentMonth > startmonth && currentMonth == endmonth)
+                {
+
+                    DateTime datefrom = new DateTime(monthYear.Year, monthYear.Month, 1, 0, 0, 0);
+
+                    ResourceUsageEvent resousageevnt = new ResourceUsageEvent(datefrom, until);
+                    monthlyec2instanceusage.AddEc2UsageEvent(resousageevnt);
+                }
+
+
             }
-            return monthlyEc2InstanceUsage;
+
+            return monthlyec2instanceusage;
         }
 
         public DateTime GetMinimumValueOfUsedFrom()

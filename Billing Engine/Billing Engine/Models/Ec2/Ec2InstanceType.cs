@@ -3,20 +3,42 @@ namespace BillingEngine.Models.Ec2
     public class Ec2InstanceType
     {
         public string InstanceType { get; }
-        public double CostPerHourOnDemand { get; }
+        public double CostPerHour { get; }
         public Ec2Region Region { get; }
-        public OperatingSystem OperatingSystem { get; }
-        public BillingType BillingType { get; }
-        public bool IsFreeTierEligible { get; }
+        public Operatingsystem OperatingSystem { get; }
+        public BillingType billingType { get; }
+        public bool IsFreeTierEligible { get; set; }
 
-        public Ec2InstanceType(string InstanceType, double CostPerHour, string RegionName)
+        public bool isfreemonth { get; }
+
+        public Ec2InstanceType() { }
+
+        public Ec2InstanceType(Ec2InstanceType instance, bool isfree)
         {
-            this.InstanceType = InstanceType;
-            this.CostPerHourOnDemand = CostPerHour;
-            this.Region = new Ec2Region(RegionName);
-            this.OperatingSystem = OperatingSystem.Linux;
-            this.BillingType = BillingType.OnDemand;
-            this.IsFreeTierEligible = false;
+            this.InstanceType = instance.InstanceType;
+            this.CostPerHour = instance.CostPerHour;
+            this.Region = instance.Region;
+            this.OperatingSystem = instance.OperatingSystem;
+            this.billingType = instance.billingType;
+            this.IsFreeTierEligible = instance.IsFreeTierEligible;
+            this.isfreemonth = isfree;
+        }
+        public Ec2InstanceType(string instancetype, double costperhour, Ec2Region region, Operatingsystem Os)
+        {
+            this.InstanceType = instancetype;
+            this.CostPerHour = costperhour;
+            this.Region = region;
+            this.OperatingSystem = Os;
+            this.billingType = BillingType.OnDemand;
+        }
+
+        public Ec2InstanceType(string instancetype, double costperhour, Ec2Region region, Operatingsystem Os, BillingType bt)
+        {
+            this.InstanceType = instancetype;
+            this.CostPerHour = costperhour;
+            this.Region = region;
+            this.OperatingSystem = Os;
+            this.billingType = bt;
         }
     }
 }
